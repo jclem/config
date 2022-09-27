@@ -77,7 +77,7 @@ class Config<T extends ConfigType> {
    *
    * @returns A promise that resolves to the parsed configuration object.
    */
-  async parseAsync(): Promise<z.infer<T>> {
+  async parseAsync(): Promise<T['_output']> {
     const input = await this.getInputAsync()
     const output = await this.schema.parseAsync(input)
     return output
@@ -93,7 +93,9 @@ class Config<T extends ConfigType> {
    *
    * @returns A promise that resolves to the parsed configuration object.
    */
-  async safeParseAsync(): Promise<z.SafeParseReturnType<unknown, z.infer<T>>> {
+  async safeParseAsync(): Promise<
+    z.SafeParseReturnType<unknown, T['_output']>
+  > {
     const input = await this.getInputAsync()
     const result = await this.schema.safeParseAsync(input)
     return result
@@ -105,7 +107,7 @@ class Config<T extends ConfigType> {
    *
    * @returns The parsed configuration object.
    */
-  parse(): z.infer<T> {
+  parse(): T['_output'] {
     const input = this.getInput()
     const output = this.schema.parse(input)
     return output
@@ -120,7 +122,7 @@ class Config<T extends ConfigType> {
    *
    * @returns The parsed configuration object.
    */
-  safeParse(): z.SafeParseReturnType<unknown, z.infer<T>> {
+  safeParse(): z.SafeParseReturnType<unknown, T['_output']> {
     const input = this.getInput()
     const output = this.schema.safeParse(input)
     return output
