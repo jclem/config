@@ -1,4 +1,5 @@
 import {expect, test} from '@jest/globals'
+import {load} from 'js-yaml'
 import z from 'zod'
 import {newConfig} from './config'
 
@@ -15,6 +16,16 @@ const BasicConfig = z.object({
 test('parses a basic config file', () => {
   const config = newConfig(BasicConfig)
     .readFile('fixtures/config1.json')
+    .parse()
+
+  expect(config.string).toEqual('string')
+  expect(config.number).toEqual(1)
+  expect(config.object).toEqual({a: 'a', b: 'b'})
+})
+
+test('accepts a custom parser', () => {
+  const config = newConfig(BasicConfig)
+    .readFile(['fixtures/config1.yml', b => load(b.toString())])
     .parse()
 
   expect(config.string).toEqual('string')

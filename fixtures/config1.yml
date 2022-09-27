@@ -1,0 +1,5 @@
+string: string
+number: 1
+object:
+  a: a
+  b: b

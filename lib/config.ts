@@ -22,9 +22,14 @@ export function newConfig<T extends ConfigType>(schema: T): Config<T> {
   return new Config(schema)
 }
 
+/**
+ * A tuple comprising a file path and a function to parse the contents of that file
+ */
+export type FileEntry = [path: string, parse: (contents: Buffer) => unknown]
+
 class Config<T extends ConfigType> {
   private readonly schema: T
-  private readonly files: string[] = []
+  private readonly files: FileEntry[] = []
   private readonly values: Record<string, unknown>[] = []
   private readFromEnv: boolean = false
 
@@ -54,12 +59,27 @@ class Config<T extends ConfigType> {
    * Can be called with a variadic list of config file paths or can be called
    * multiple times to build up a list of config files to read from.
    *
+   * A {@link FileEntry}—a type comprising file path and a parse function—can be
+   * passed to parse non-JSON files.
+   *
+   * @example
+   * ```typescript
+   * newConfig(Config)
+   *  .readFile('config.json', ['config2.yaml', yaml.parse])
+   *  .readFile(['config.toml', toml.parse])
+   *  .parse()
+   * ```
+   *
    * Reading is not done until {@link parseAsync} or {@link parse} is called.
    *
    * @param filePaths The paths to the config file(s) to read
    */
-  readFile(...filePaths: string[]): this {
-    this.files.push(...filePaths)
+  readFile(...filePaths: (string | FileEntry)[]): this {
+    this.files.push(
+      ...filePaths.map<FileEntry>(p =>
+        isFileEntry(p) ? p : [p, this.parseFile]
+      )
+    )
     return this
   }
 
@@ -148,10 +168,12 @@ class Config<T extends ConfigType> {
 
   private async readInFiles() {
     const files = await Promise.all(
-      this.files.map(filePath => {
+      this.files.map(entry => {
         return new Promise<Record<string, unknown>>((resolve, reject) => {
-          readFile(filePath, (err, data) =>
-            err ? reject(err) : resolve(this.parseFile(data))
+          readFile(entry[0], (err, data) =>
+            err
+              ? reject(err)
+              : resolve(z.object({}).passthrough().parse(entry[1](data)))
           )
         })
       })
@@ -161,7 +183,12 @@ class Config<T extends ConfigType> {
   }
 
   private readInFilesSync() {
-    const files = this.files.map(path => this.parseFile(readFileSync(path)))
+    const files = this.files.map(entry =>
+      z
+        .object({})
+        .passthrough()
+        .parse(entry[1](readFileSync(entry[0])))
+    )
     return deepMerge(...files)
   }
 
@@ -233,4 +260,8 @@ function deepMerge(...objects: Record<string, unknown>[]) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value != null && !Array.isArray(value)
+}
+
+function isFileEntry(v: string | FileEntry): v is FileEntry {
+  return Array.isArray(v)
 }
