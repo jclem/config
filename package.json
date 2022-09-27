@@ -1,7 +1,7 @@
 {
   "name": "@jclem/config",
   "description": "A runtime configuration library for Node.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "author": "Jonathan Clem <j@jclem.me> (https://jclem.me)",
   "homepage": "https://github.com/jclem/config",
