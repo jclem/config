@@ -1,5 +1,5 @@
 import {readFile, readFileSync} from 'node:fs'
-import z from 'zod'
+import * as z from 'zod'
 
 /** A {@link z.ZodObject} definition used to define config */
 export type ConfigType = z.ZodObject<z.ZodRawShape>
@@ -77,7 +77,7 @@ class Config<T extends ConfigType> {
    *
    * @returns A promise that resolves to the parsed configuration object.
    */
-  async parseAsync(): Promise<T['_output']> {
+  async parseAsync(): Promise<z.infer<T>> {
     const input = await this.getInputAsync()
     const output = await this.schema.parseAsync(input)
     return output
@@ -93,9 +93,7 @@ class Config<T extends ConfigType> {
    *
    * @returns A promise that resolves to the parsed configuration object.
    */
-  async safeParseAsync(): Promise<
-    z.SafeParseReturnType<unknown, T['_output']>
-  > {
+  async safeParseAsync(): Promise<z.SafeParseReturnType<unknown, z.infer<T>>> {
     const input = await this.getInputAsync()
     const result = await this.schema.safeParseAsync(input)
     return result
@@ -107,7 +105,7 @@ class Config<T extends ConfigType> {
    *
    * @returns The parsed configuration object.
    */
-  parse(): T['_output'] {
+  parse(): z.infer<T> {
     const input = this.getInput()
     const output = this.schema.parse(input)
     return output
@@ -122,7 +120,7 @@ class Config<T extends ConfigType> {
    *
    * @returns The parsed configuration object.
    */
-  safeParse(): z.SafeParseReturnType<unknown, T['_output']> {
+  safeParse(): z.SafeParseReturnType<unknown, z.infer<T>> {
     const input = this.getInput()
     const output = this.schema.safeParse(input)
     return output
