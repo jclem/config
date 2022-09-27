@@ -30,6 +30,8 @@
     "build": "konk run s -L -n'build:*'",
     "build:clean": "[ -d dist ] && rm -r dist || true",
     "build:tsc": "tsc -p tsconfig.build.json",
+    "check": "konk run c -cgL -n'check:*'",
+    "check:build": "tsc --noEmit -p tsconfig.build.json",
     "prepack": "npm run build",
     "test": "jest"
   },
