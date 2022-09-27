@@ -72,6 +72,23 @@ const config = newConfig(z.object({foo: z.string()}))
 console.log(config.foo) // bar
 ```
 
+A non-JSON file can also be read by supplying a tuple containing a file path and
+a parser function with the signature `(data: Buffer) => unknown`:
+
+```typescript
+import {newConfig} from '@jclem/config'
+import {load} from 'js-yaml'
+
+// config.yaml
+// foo: bar
+
+const config = newConfig(z.object({foo: z.string()}))
+  .readFile(['config.yaml', b => load(b.toString())])
+  .parse()
+
+console.log(config.foo) // bar
+```
+
 #### Reading the Environment
 
 Config can read configuration input from environment variables by calling
