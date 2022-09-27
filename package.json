@@ -30,8 +30,7 @@
     "build": "konk run s -L -n'build:*'",
     "build:clean": "[ -d dist ] && rm -r dist || true",
     "build:tsc": "tsc -p tsconfig.build.json",
-    "publish": "konk run s -L -nbuild -npublish-npm",
-    "publish-npm": "npm publish --access public",
+    "prepack": "npm run build",
     "test": "jest"
   },
   "jest": {
