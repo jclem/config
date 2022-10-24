@@ -198,15 +198,22 @@ class Config<T extends ConfigType> {
 
   // Iterate over the schema shape recursively, and read values out of
   // environment variables. A value at the path `foo.bar.baz` should be read
-  // from `FOO_BAR_BAZ`, and a value at the path `fooBar.baz` should be read
-  // from `FOOBAR_BAZ`.
+  // from `FOO__BAR__BAZ`, and a value at the path `fooBar.baz` should be read
+  // from `FOO_BAR__BAZ`.
   private readInEnv() {
     if (!this.readFromEnv) return {}
 
     const input: Record<string, any> = {}
 
     const readEnvValue = (path: string[]) => {
-      const envVarName = path.map(p => p.toUpperCase()).join('_')
+      const envVarName = path
+        .map(p =>
+          p
+            .split(/(?=[A-Z])/)
+            .map(s => s.toUpperCase())
+            .join('_')
+        )
+        .join('__')
       return process.env[envVarName]
     }
 

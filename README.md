@@ -19,8 +19,8 @@ $ npm install @jclem/config
 import {newConfig} from '@jclem/config'
 import z from 'zod'
 
-process.env['DATABASE_URL'] = 'mysql://localhost:3306/mydb'
-process.env['DATABASE_POOLSIZE'] = '10'
+process.env['DATABASE__URL'] = 'mysql://localhost:3306/mydb'
+process.env['DATABASE__POOL_SIZE'] = '10'
 
 // Define a configuration schema using Zod.
 const Config = z.object({
@@ -106,15 +106,16 @@ const config = newConfig(z.object({foo: z.string()}))
 console.log(config.foo) // bar
 ```
 
-Note that currently, Config converts schema paths to underscore-separated
+Note that currently, Config converts schema paths to double-underscore-separated
 uppercased environment variable names. So, for example, the schema path
-`database.url` would be converted to the environment variable `DATABASE_URL` and
-the schema path `database.poolSize` would be converted to the environment
-variable `DATABASE_POOLSIZE`.
+`database.url` would be converted to the environment variable `DATABASE__URL`
+and the schema path `database.poolSize` would be converted to the environment
+variable `DATABASE__POOL_SIZE` (capital letters imply a single-underscore
+separation).
 
-Note that this means that a schema with both `database.url` and `database_url`
+Note that this means that a schema with both `database.url` and `database__url`
 will have both values populated from the same environment variable,
-`DATABASE_URL`.
+`DATABASE__URL`.
 
 ### Configuration Source Precedence
 

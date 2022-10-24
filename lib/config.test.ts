@@ -52,11 +52,17 @@ test('reads from the environment', () => {
     .readEnv()
     .parse()
   expect(config.foo).toEqual('bar')
+
+  process.env['FOO__BAR'] = 'baz'
+  const nestedConfig = newConfig(z.object({foo: z.object({bar: z.string()})}))
+    .readEnv()
+    .parse()
+  expect(nestedConfig.foo.bar).toEqual('baz')
 })
 
 test('merges value, file, environment', () => {
-  process.env['OBJECT_A'] = 'a from env'
-  process.env['OBJECT_C'] = 'c from env'
+  process.env['OBJECT__A'] = 'a from env'
+  process.env['OBJECT__C'] = 'c from env'
 
   const config = newConfig(BasicConfig)
     .readValue({string: 'string from value', number: -1})
@@ -70,14 +76,15 @@ test('merges value, file, environment', () => {
 })
 
 test('handles camel-cased names in env vars', () => {
-  process.env['FOOBAR'] = 'baz'
+  process.env['FOO_BAR'] = 'baz'
+  process.env['FOOBAR'] = 'qux'
 
   const config = newConfig(z.object({fooBar: z.string(), foobar: z.string()}))
     .readEnv()
     .parse()
 
   expect(config.fooBar).toEqual('baz')
-  expect(config.foobar).toEqual('baz')
+  expect(config.foobar).toEqual('qux')
 })
 
 test('handles conflicting property names and object paths', () => {
@@ -85,17 +92,15 @@ test('handles conflicting property names and object paths', () => {
 
   const config = newConfig(
     z.object({
-      foo_bar: z.string(),
-      foo: z.object({
-        bar: z.string()
-      })
+      fooBar: z.string(),
+      foo_bar: z.string()
     })
   )
     .readEnv()
     .parse()
 
   expect(config.foo_bar).toEqual('baz')
-  expect(config.foo.bar).toEqual('baz')
+  expect(config.fooBar).toEqual('baz')
 })
 
 test('handles preprocessing', () => {
