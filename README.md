@@ -1,5 +1,7 @@
 # @jclem/config
 
+**Update** Moved to https://github.com/jclem/lib/tree/main/packages/config (same package name)
+
 This is a configuration library for Node.js. Inspired by the excellent
 [Viper](https://github.com/spf13/viper) library for Go, Config allows one to
 stop relying on reading from unstructured, untyped, and unsafe environment
